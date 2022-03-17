@@ -14,17 +14,22 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.memory_maps.R;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     // Objects.
     private Button button;
     private GoogleMap mMap;
+    private ArrayList<ArrayList<Double>> savedMarkers = new ArrayList<ArrayList<Double>>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -43,31 +48,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void openActivity2() {
+        // Create the intent to go to the second activity (Photo Gallery).
         Intent intent = new Intent(this, photoGallery.class);
         startActivity(intent);
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     *
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        // Create googleMap object.
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions()
-                .position(sydney)
-                .title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        // Set up long click listener.
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 
-        
+        @Override
+        public void onMapLongClick(LatLng point) {
+
+            // Create marker at location of long press.
+            MarkerOptions marker = new MarkerOptions().position(new LatLng(point.latitude, point.longitude));
+
+            // Put the marker on the map.
+            mMap.addMarker(marker);
+
+            // Add the marker lat long coordinates to array.
+            savedMarkers.add(new ArrayList<Double>(Arrays.asList(point.latitude, point.longitude)));
+
+            System.out.println(point.latitude + "------" + point.longitude);
+
+            // Print the size of the multi dimensional array list.
+            System.out.println(savedMarkers.size());
+
+            // Stop the animation for the icon.
+            mMap.stopAnimation();
+        }
+
+    });
+
     }
+
 }
